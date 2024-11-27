@@ -1,0 +1,24 @@
+{
+  "identifier": "com.cvickery.manage-footnotes",
+  "name": "Footnote Manager",
+  "organization": "cvickery.com",
+  "description": "Manage footnotes for HTML documents.",
+  "version": "1.0",
+  "categories": ["commands"],
+
+  "main": "main.js",
+
+  "activationEvents": ["onLanguage:html"],
+
+  "config": [{"key": "manage-footnotes.reference-style",
+            "title": "Reference Style",
+            "type": "enum",
+            "values": ["<sup>", "[...]", "(...)", "{...}"],
+            "default": "<sup>"}],
+
+
+  "commands": {"editor": [{"title": "Make Footnote",
+                           "command": "manage-footnotes.makeFootnote",
+                           "shortcut": "ctrl-f"}]}
+
+}
