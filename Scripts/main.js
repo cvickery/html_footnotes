@@ -124,11 +124,11 @@ nova.commands.register("manage-footnotes.makeFootnote", async () => {
     // console.log(`footnoteBody: ${footnoteBody}`);
     // Generate the link to the footnote’s div, and the footnote div definition
     const id = `${Date.now()}`;
-    const footnote_reference = `${left}<a id="fn-ref-${id}"
+    const footnote_reference = `<span class="fn-ref">${left}<a id="fn-ref-${id}"
       data-fn-ref="${id}"
-      href="#fn-def-${id}">*</a>${right}`;
+      href="#fn-def-${id}">*</a>${right}</span>`;
     const footnotes_div = `
-${section_indent}${tabText}<div id="fn-def-${id}" class="fn">
+${section_indent}${tabText}<div id="fn-def-${id}" class="fn-def">
 ${section_indent}${tabText}${tabText}${footnoteBody}
 ${section_indent}${tabText}${tabText}<a href="#fn-ref-${id}"><span class="fn-ref-link">↩</span></a>
 ${section_indent}${tabText}</div>\n
