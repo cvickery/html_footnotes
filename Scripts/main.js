@@ -100,7 +100,8 @@ nova.commands.register("manage-footnotes.makeFootnote", async () => {
   // Verify the <section> tag is the first text on the line.
   const section_indent = footnotesMatch[1];
   if (!/^\s*$/.test(section_indent)) {
-    throw new Error("Section tag not first text on line");
+    // Section tag not first text on line, so empty the section_indent string
+    section_indent = "";
   }
 
   // Find the end of the #footnotes section
@@ -124,9 +125,11 @@ nova.commands.register("manage-footnotes.makeFootnote", async () => {
     // console.log(`footnoteBody: ${footnoteBody}`);
     // Generate the link to the footnote’s div, and the footnote div definition
     const id = `${Date.now()}`;
+
     const footnote_reference = `<span class="fn-ref">${left}<a id="fn-ref-${id}"
       data-fn-ref="${id}"
       href="#fn-def-${id}">*</a>${right}</span>`;
+
     const footnotes_div = `
 ${section_indent}${tabText}<div id="fn-def-${id}" class="fn-def">
 ${section_indent}${tabText}${tabText}${footnoteBody}

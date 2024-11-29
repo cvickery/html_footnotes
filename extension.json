@@ -11,10 +11,16 @@
   "activationEvents": ["onLanguage:html"],
 
   "config": [{"key": "manage-footnotes.reference-style",
-            "title": "Reference Style",
-            "type": "enum",
-            "values": ["<sup>", "[...]", "(...)", "{...}"],
-            "default": "<sup>"}],
+              "title": "Reference Style",
+              "type": "enum",
+              "values": ["<sup>", "[...]", "(...)", "{...}"],
+              "default": "<sup>"},
+
+             {"key": "manage-footnotes.simple_numbering",
+              "title": "Use Simple Numbering",
+              "type": "boolean",
+              "default": true}
+             ],
 
 
   "commands": {"editor": [{"title": "Make Footnote",
