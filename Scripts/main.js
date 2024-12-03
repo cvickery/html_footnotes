@@ -29,7 +29,7 @@ async function getFootnoteBody(editor) {
     return new Promise((resolve, reject) => {
       nova.workspace.showInputPanel('Make Footnote', options, (userInput) => {
         if (!userInput) {
-          reject(new Error("No Change"));
+          return; // No change
           }
         resolve(userInput);
         });
@@ -58,25 +58,69 @@ nova.commands.register("manage-footnotes.makeFootnote", async () => {
     throw new Error("No active text editor");
   }
 
-  // Configuration option: Reference Style
-  const reference_style = nova.config.get('manage-footnotes.reference-style');
-  let left = "", right = "";
-  switch (reference_style) {
-    case "<sup>":
-      left = "<sup>";
-      right = "</sup>";
-      break;
-    default:
-      // "[...]" or "(...)" or "{...}"
-      left = reference_style[0];
-      right = reference_style[4];
-  }
-
-  // What to use to indent the footnote div within the #footnotes section
+  // Editor option: Indentation text
   const tabText = editor.tabText;
-  // // console.log(`tabText: ${Array.from(tabText)
+  // console.log(`tabLength: ${editor.tabLength}`);
+  // console.log(`tabText: ${Array.from(tabText)
   //                              .map(c => c.charCodeAt(0).toString(16).padStart(2, '0'))
-  //                              .join(' ')}`);
+  //                              .join('')}`);
+
+  // Extension option: Reference Style
+  const reference_style = nova.config.get('manage-footnotes.reference-style');
+  if (!reference_style) {
+    throw new Error("No reference style")
+  }
+  // What appears on each side of the placeholder for the reference
+  let ref_left = '', ref_right = '';
+  // What appears on each side of the placeholder for the definition
+  let def_left = '', def_right = '';
+  // Placeholder to display
+  let display = '';
+  switch (reference_style) {
+
+    case "superscript":
+      ref_left = "<sup>";
+      ref_right = "</sup>";
+      def_left = '';
+      def_right = '.';
+      display = '#';
+      break;
+
+    case "bracket":
+      ref_left = '[';
+      ref_right = ']';
+      def_left = '[';
+      def_right = ']';
+      display = '#'
+      break;
+
+    case "asterisk":
+      ref_left = '<sup>';
+      ref_right = '</sup>';
+      def_left = '';
+      def_right = '';
+      display = '*'
+      break;
+
+    case "dagger":
+      ref_left = '<sup>';
+      ref_right = '</sup>';
+      def_left = '[';
+      def_right = ']';
+      display = '†'
+      break;
+
+    case "dingbat":
+      ref_left = '<sup>';
+      ref_right = "</sup>";
+      def_left = '[';
+      def_right = ']';
+      display = '✍';
+      break;
+
+    default:
+      throw new Error("Invalid Reference Style")
+  }
 
   // Where to insert the footnote reference
   const reference_range = editor.selectedRange;
@@ -97,7 +141,7 @@ nova.commands.register("manage-footnotes.makeFootnote", async () => {
   // console.log(`index: ${footnotesMatch.index}`);
   // console.log(`length: ${footnotesMatch[0].length}`);
 
-  // Verify the <section> tag is the first text on the line.
+  // Try to preserve the indentation of the footnotes section
   const section_indent = footnotesMatch[1];
   if (!/^\s*$/.test(section_indent)) {
     // Section tag not first text on line, so empty the section_indent string
@@ -126,27 +170,33 @@ nova.commands.register("manage-footnotes.makeFootnote", async () => {
     // Generate the link to the footnote’s div, and the footnote div definition
     const id = `${Date.now()}`;
 
-    const footnote_reference = `<span class="fn-ref">${left}<a id="fn-ref-${id}"
-      data-fn-ref="${id}"
-      href="#fn-def-${id}">*</a>${right}</span>`;
+    // The footnote reference display span.
+    const footnote_reference = `<span class="fn-ref">${ref_left}<a id="fn-ref-${id}"
+      data-fn-id="${id}"
+      data-fn-style="${reference_style}"
+      href="#fn-def-${id}">${display}</a>${ref_right}</span>`;
 
-    const footnotes_div = `
-${section_indent}${tabText}<div id="fn-def-${id}" class="fn-def">
-${section_indent}${tabText}${tabText}${footnoteBody}
-${section_indent}${tabText}${tabText}<a href="#fn-ref-${id}"><span class="fn-ref-link">↩</span></a>
-${section_indent}${tabText}</div>\n
+    // The footnote definition display span
+    const def_display = `<span>${def_left}<span class="fn-def-num">${display}</span>${def_right}</span>`;
+
+    // The footnote defintion div
+    const footnote_div = `<div id="fn-def-${id}" class="fn-def">
+${section_indent}${tabText}${def_display} ${footnoteBody}
+${section_indent}${tabText}<a href="#fn-ref-${id}"><span class="fn-ref-link">↩</span></a>
+${section_indent}</div>\n
 ${section_indent}`;
 
-    // console.log(`footnotes_div: ${footnotes_div}`);
+    // console.log(`footnote_div: ${footnote_div}`);
 
     // Insert footnote at end of footnotes section, just before the closing tag.
     editor.edit((edit) => {
-      // console.log(`insert footnotes_div at ${endPos}`);
-      edit.insert(endPos, footnotes_div);
+      // console.log(`insert footnote_div at ${endPos}`);
+      edit.insert(endPos, footnote_div);
     });
 
     // Insert the footnote reference link
     editor.edit((edit) => {
+      // console.log(`footnote_reference: ${footnote_reference}`)
       // console.log(`insert reference at ${reference_range}`);
       edit.replace(reference_range, footnote_reference);
     });
