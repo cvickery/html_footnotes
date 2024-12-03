@@ -1,7 +1,7 @@
 
 # HTML Footnote Manager
 
-Manage links from footnote references to footnote definitions, and back, in HTML documents.
+This is an extension for the MacOS [Nova editor](https://nova.app) to manage links from footnote references to footnote definitions, and back, in HTML documents.
 
 ## Usage
 - Position the cursor where you want to insert a footnote, and type the keyboard shortcut for the extension (default: `ctrl-f`).
