@@ -1,71 +1,153 @@
 
-#HTML Footnotes
-Manage footnotes numbers and links in HTML documents.
+# HTML Footnote Manager
 
-Each footnote consists of a *footnote reference* and a *footnote body* ("definition"). The reference appears at some point in the main content part of the document, and consists of a number or symbol (`'*'`), which is a clickable link to the footnote body. The footnote bodies are gathered together in a section that is typically located at the end of the document. Each footnote body ends with a link back to the point in the document where the reference appears.
+Manage links from footnote references to footnote definitions, and back, in HTML documents.
 
-Given the text of a footnote body, this extension sets up the reference link, the return link at the end of the body, and places the body in the footnotes section of the document. When the document is rendered by a browser, a small JavaScript function handles the process of generating footnote numbers in the order of the references in the document, and arranging the order of the footnote bodys to match the numbering order.
-
-The footnote reference style is selectable: superscripts, or enclosed in square, round, or curly brackets.
-
-The bodies of footnotes may be supplied in either of two ways. If there is no text selected, the user is prompted to type (or paste) the body's text, and the footnote reference will be inserted at the editor's current position. However, if the current selection is not empty, that text will be used as the body's text, and the footnote reference will replace the selected text. In either case, footnote bodies are gathered into a list of `div`s in a _#footnotes_ `section`, normally located at the end of the document. A link back to the footnote reference point is automatically appended to each footnote body. 
-
-As the HTML document is edited, all footnote references are shown as `*`s. The numbering process is deferred until the document is actually viewed (rendered by a user’s browser). At that point, a supplied JavaScript function numbers the footnotes in the order in which they are referenced in the body of the document and re-orders the footnote bodies in the _#footnotes_ `section` to match that order. Without the JavaScript code, the references will all continue to appear as asterisks, the footnote bodies will appear in the order in which they were added by the writer, and they will all appear as number "*". But the links from the references to the footnotes and back will still work.
+## Usage
+- Position the cursor where you want to insert a footnote, and type the keyboard shortcut for the extension (default: `ctrl-f`).
+- If no text is selected, type or paste the footnote text at the prompt. Otherwise the selected text is used as the footnote text.
+- The extension inserts HTML code for a placeholder footnote number at the insertion point, replacing the selected text (if any).
+- The extension adds a `<div>` containing the footnote text to the footnotes section of the document.
+- The footnote number at the insertion point is a link to the footnote body, and the footnote body ends with a link back to the insertion point.
+- When the page is rendered by a browser, a separate JavaScript (supplied) replaces the placeholder footnote numbers with actual values based on the order in which they appear in the document, and reorders the `div`s in the footnotes section to match.
 
 ## Features
-- CSS support:
-    - All footnote references are wrapped in a `span` with the class name "fn-ref"
-    - All footnote bodies are wrapped in a `div` with the class name "fn-def'
-    - The text for the links from the end of the footnote body to the footnote reference ('↩') are wrapped in a `span` with the class name "fn-ref-link"
-- Each footnote is assigned a unique id (the millisecond timestamp when it was created).
-    - ID’s are used only for matching references to definitions and vice-versa.
-    - Footnote numbers shown on the web page are determined when the document is rendered. If new footnotes are added to a document, the footnote numbers will match the new reference order whenever the updated the document is viewed again.
-    - Footnote numbers are always Arabic numerals (1, 2, 3, ...).  
+- Footnotes may be added to a document in any order, and the final sequence in which footnote references appear, from top to bottom, determines their ordinal numbers rather than the sequence in which they were added.
+- Supports multiple footnote numbering styles: *superscript*, *bracket*, *asterisk*, *dagger*, and *dingbat*. See *Reference Styles* below.
+    - However, mixing styles within a single document will lead to undesireable effects. The first footnote reference determines some, but not all, of the footnote formatting for the whole document.
+- Preserves code indentation structure within the footnotes section, provided the `<section>` tag is the first tag on a line.
+- CSS classes for selecting footnote numbers in the body of the text or at the beginning of each footnote `<div>`, as well as for the return links at the end of each footnote `<div>`. See *CSS Classes* below.
 
 ## Configuration
 
-### keyboard shortcut
+### Keyboard Shortcut
 
-The default keyboard shortcut for creating a new footnote is `ctrl-f`. It can be changed in Nova’s *Settings→Key Bindings* pane.
+The default keyboard shortcut for creating a new footnote is `ctrl-f`. It can be changed in Nova’s *Settings > Key Bindings* pane.
 
-### reference style
-Footnote reference numbers are superscripts by default, but may alternatively be enclosed in square, round, or curly braces. The choice can be changed in the extension’s Settings pane. The choices are shown there as `<sup>` for superscripts, and as `[...]`, `(...)`, and `{...}` for the other three options.
+### Reference Styles
+Footnote reference numbers are superscripts by default, but several alternatives are available in the extension's Settings pane:
+<dl>
 
-### use simple numbering
-By default, when footnotes are numbered the footnote bodies in the `#footnotes` section are simply preceeded by the number, a period, and two spaces. In the extension’s Settings pane, there is an option to turn off this simple numbering scheme (uncheck the option). With this option off, *and if the reference style is square, round, or curly brackets,* then each footnote body will be preceded by the footnote number enclosed in the reference style brackets, followed by two spaces.
+<dt>superscript</dt>
+<dd>The footnote reference is a superscripted number. Each footnote div is prefixed with the footnote number and a dot.</dd>
+
+<dt>bracket</dt>
+<dd>The footnote reference is an in-line number enclosed in square brackets.
+Each footnote div is prefixed with the footnote number enclosed in square brackets.
+</dd>
+
+<dt>asterisk</dt>
+<dd>The footnote reference is a superscripted string of asterisks, with the ordinal position of the footnote determining the number of asterisks. Each footnote reference is prefixed with the corresponding number of asterisks.
+</dd>
+
+<dt>dagger</dt>
+<dd>Like <em>asterisk</em>, except use daggars (†) instead of asterisks. The second footnote uses double-dagger (‡), but then it's multiple regular daggers all the way down.
+</dd>
+
+<dt>dingbat</dt>
+<dd>Uses a set of "writerly" dingbats (✍, ✎, ✏, ✐, ✑, ✒). If there are more than six footnotes, the dingbats are doubled (✍✍, etc), tripled, ... as necessary.
+</dd>
+
+</dl>
 
 ## Usage
 
-### Create an empty `<section>` element to the HTML document you want to add footnotes to.
+### Create an empty `<section>` element in the HTML document you want to add footnotes to.
 Make the id of the section "footnotes":
 
 ```
 <section id="footnotes">
+
 </section>
 ```
 
-The section normally goes just before the `</body>` tag, but can that position is not a requirement.
+If the `<section>` tag is the first text on a line, its indentation will be used to indent the footnote divs that get added to the section.
+
+> Each footnote div is preceded by a blank line and added on the line just before the closing `</section>` tag. Including one blank line in the empty section as shown above will cause each footnote div to have one blank line before and after it. This is all about code formatting, and has nothing to do with how the footnote divs are formatted when the page is rendered. 
+
+The footnotes section normally goes at the end of the document, just before the `</body>` tag, but using that position is not a requirement.
 
 ### Add the supplied `footnotes.js` to the HTML documents.
-Link to the `footnotes.js` file from the web page.
-You can find `footnotes.js` in the following directory:
 
-_[extension-path]_`/footnotes.js`
+This is the code that replaces the placeholder text generated by the extension with the formatted references and, if necessary, reorders the divs in the footnotes section to match the reference order.
 
-On macOS, the _extension-path_ is:
-`~/Library/Application Support/Nova/Extensions/com.cvickery.footnote_manager/`
+You can find `footnotes.js` in the top level of the installed extension. (It is not in the Scripts subdirectory because it's not used directly by the extension's code.):
 
-Copy the `footnotes.js` file into your project and reference it like this:
-```html
-<script src="footnotes.js"></script>
+On macOS, this is normally:
+`~/Library/Application Support/Nova/Extensions/com.cvickery.footnote_manager/footnotes.js`
+
+Copy the `footnotes.js` file into your project and reference it in the usual way, such as:
 ```
-## Usage
+<script src="./my_scripts/footnotes.js"></script>
+```
+### Creating Footnotes
 
 To add a footnote to your document:
 
-- Use the keyboard shortcut (default `ctrl-f`); or
-- Use the *Editor → Make Footnote* menu item; or
-- Open the command palette (⌘⇧P) and type `Make Footnote`
+- Position the cursor where the reference will go.
+- Either type the text for the footnote and select it, or leave the selection empty.
+    - HTML tags are allowed in the footnote, except `<section>` and `</section>` tags.
+- Use the keyboard shortcut (default `ctrl-f`) to create the footnote.
+    - If nothing is selected, you will be prompted to type/paste the footnote body.
+- Instead of typing `ctrl-f` you could: 
+    - Use the *Editor → Make Footnote* menu item; or
+    - Open the command palette (⌘⇧P) and type `Make Footnote`
+
+## CSS Classes
+
+There are four classes that can be used for selections:
+
+<dl>
+
+<dt>.fn-ref</dt>
+<dd>This selects the &lt;span&gt; that contains the links from the body of the document to the footnote &lt;div&gt;s in the footnotes &lt;section&gt;. For example, to remove the underline from the links:
+
+<pre>
+.fn-ref a {
+  text-decoration: none;
+}
+</pre>
+</dd>
+
+<dt>.fn-def</dt>
+<dd>This selects the &lt;div&gt;s that hold the footnotes’ text (“<em>definitions</em>”). The first element in each footnote div is a span that holds the formatted footnote number (or asterisks, daggers, etc.). For example, if you want to manage the space between the formatted number and the text of the footnote, you could use:
+
+<pre>
+.fn-def > span:first-child {
+  margin-right: 0.5em;
+}
+</pre>
+</dd>
+
+<dt>.fn-def-num</dt>
+<dd>This selects a span inside the span used in the previous example. This span contains the actual footnote number without including any brackets or dots that might be surrounding or following it. The one use case I am aware of for this selector is when using dingbats, which are sometimes hard to see and even sometimes seem to have differing rendered widths from one another. This is the fix for that issue:
+
+<pre>
+/* Possibly useful for dingbat style */
+.fn-def-num {
+  font-family: ui-monospace, monospace;
+}
+</pre>
+
+</dd>
+
+<dt>.fn-ref-link</dt>
+<dd>This selects the links at the end of the format divs that go back to their footnote references. The default text for those links is '↩', so you could change it to something different using JavaScript:
+
+<pre>
+document.querySelectorAll('.fn-ref-link').forEach(a => {
+    a.textContent = 'Click here to go back to the reference point!';
+});</pre>
+
+</dd>
+
+</dl>
+
+## Internals
+
+This information should not need be needed in order to use the extension. But it does document two `data-*` attributes that cannot safely be used in footnote definitions.
+
+Every footnote is assigned a unique ID: the millisecond timestamp of when it was created. This timestamp ID is used for creating the links between footnote references to the footnote definition divs and back. Two `data-*` attributes are used: `data-fn-id`, with the timestamp ID as its value, and `data-fn-style`, with the formatting style (*superscript*, *bracket*, etc.) as its value. As implied previously, the `data-fn-style` attribute is attached to each footnote reference, but the value of only the first instance on a page is used for the entire document. Hence, changing the format style between footnote additions to a document is an ill-advised practice.
 
 
 
