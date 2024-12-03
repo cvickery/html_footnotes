@@ -1,10 +1,13 @@
 {
   "identifier": "com.cvickery.manage-footnotes",
-  "name": "Footnote Manager",
+  "name": "HTML Footnote Manager",
   "organization": "cvickery.com",
   "description": "Manage footnotes for HTML documents.",
   "version": "1.0",
   "categories": ["commands"],
+
+  "repository": "https://github.com/cvickery/html_footnotes",
+  "bugs": "https://github.com/cvickery/html_footnotes/issues",
 
   "main": "main.js",
 
@@ -13,14 +16,8 @@
   "config": [{"key": "manage-footnotes.reference-style",
               "title": "Reference Style",
               "type": "enum",
-              "values": ["<sup>", "[...]", "(...)", "{...}"],
-              "default": "<sup>"},
-
-             {"key": "manage-footnotes.simple_numbering",
-              "title": "Use Simple Numbering",
-              "type": "boolean",
-              "default": true}
-             ],
+              "values": ["superscript", "bracket", "asterisk", "dagger", "dingbat"],
+              "default": "superscript"}             ],
 
 
   "commands": {"editor": [{"title": "Make Footnote",
